@@ -2,7 +2,7 @@ import os
 import pytest
 import tempfile
 import shutil
-from fastapi.testclient import TestClient
+from starlette.testclient import TestClient
 from pathlib import Path
 
 from app.main import app
