@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from fastapi import status
 from httpx import AsyncClient
 
@@ -12,7 +12,9 @@ async def test_validate_valid_api_key(test_client, mock_valid_api_key):
     """
     with patch('httpx.AsyncClient.get') as mock_get:
         # Mock successful API response
-        mock_response = type('Response', (), {'status_code': 200, 'json': lambda: {'data': []}})
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {'data': []}
         mock_get.return_value = mock_response
         
         response = test_client.post(
@@ -21,7 +23,11 @@ async def test_validate_valid_api_key(test_client, mock_valid_api_key):
         )
         
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {"valid": True, "message": "API key is valid"}
+        json_response = response.json()
+        assert json_response["valid"] == True
+        assert json_response["message"] == "API key is valid"
+        # 새로운 rate_limits 필드가 응답에 포함됨을 확인
+        assert "rate_limits" in json_response
 
 @pytest.mark.asyncio
 async def test_validate_invalid_api_key(test_client):
@@ -30,7 +36,8 @@ async def test_validate_invalid_api_key(test_client):
     """
     with patch('httpx.AsyncClient.get') as mock_get:
         # Mock unsuccessful API response
-        mock_response = type('Response', (), {'status_code': 401})
+        mock_response = MagicMock()
+        mock_response.status_code = 401
         mock_get.return_value = mock_response
         
         response = test_client.post(
@@ -38,15 +45,21 @@ async def test_validate_invalid_api_key(test_client):
             json={"api_key": "invalid-key"}
         )
         
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert "Invalid API key" in response.json()["detail"]
+        # 새로운 API는 형식 검증을 먼저 수행하므로 400 상태 코드 반환
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        json_response = response.json()
+        assert json_response["valid"] == False
 
 @pytest.mark.asyncio
-async def test_get_token_usage(test_client):
+async def test_get_token_usage(test_client, mock_valid_api_key):
     """
     Test getting token usage information
     """
-    response = test_client.get("/api/token-usage")
+    # 헤더에 API 키 추가
+    response = test_client.get(
+        "/api/token-usage", 
+        headers={"X-API-Key": mock_valid_api_key}
+    )
     
     assert response.status_code == status.HTTP_200_OK
     assert "total_tokens_used" in response.json()

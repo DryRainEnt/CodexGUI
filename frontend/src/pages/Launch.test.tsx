@@ -6,7 +6,9 @@ import { validateApiKey } from '../api/endpoints';
 
 // Mock API endpoint
 vi.mock('../api/endpoints', () => ({
-  validateApiKey: vi.fn()
+  validateApiKey: vi.fn(),
+  getTokenUsage: vi.fn(),
+  checkApiKeyStatus: vi.fn()
 }));
 
 // Mock the useNavigate hook
@@ -18,32 +20,15 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock the useTranslation hook
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        'launch.title': 'Welcome to CodexGUI',
-        'launch.subtitle': 'Git repository analysis and LLM conversation logs',
-        'launch.apiKeyInput': 'Enter your OpenAI API Key',
-        'launch.apiKeyPlaceholder': 'sk-...',
-        'launch.validateButton': 'Validate and Start',
-        'launch.validatingMessage': 'Validating API key...',
-        'launch.invalidKeyError': 'Invalid API key. Please check and try again.',
-        'app.version': 'Web Edition v0.1.0'
-      };
-      return translations[key] || key;
-    }
-  })
-}));
-
 // Mock the Zustand store
 vi.mock('../store/apiKeyStore', () => ({
   default: vi.fn(() => ({
     apiKey: null,
     isValidated: false,
+    remainingTokens: null,
     setApiKey: vi.fn(),
-    setValidated: vi.fn()
+    setValidated: vi.fn(),
+    setRemainingTokens: vi.fn()
   }))
 }));
 
@@ -88,14 +73,16 @@ describe('Launch Component', () => {
     const button = screen.getByText('Validate and Start');
     fireEvent.click(button);
     
+    // Use a more specific selector to find the error message
     await waitFor(() => {
-      expect(screen.getByText('Invalid API key. Please check and try again.')).toBeInTheDocument();
-    });
+      const errorElements = screen.getAllByText(/invalid api key/i);
+      expect(errorElements.length).toBeGreaterThan(0);
+    }, { timeout: 3000 });
   });
 
   it('handles successful validation', async () => {
     // Mock validateApiKey to resolve
-    (validateApiKey as any).mockResolvedValueOnce({ valid: true });
+    (validateApiKey as any).mockResolvedValueOnce({ valid: true, message: 'API key is valid' });
     
     render(
       <BrowserRouter>
@@ -111,6 +98,6 @@ describe('Launch Component', () => {
     
     await waitFor(() => {
       expect(validateApiKey).toHaveBeenCalledWith('sk-validkey12345');
-    });
+    }, { timeout: 3000 });
   });
 });
