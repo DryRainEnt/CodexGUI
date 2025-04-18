@@ -9,7 +9,8 @@ import Projects from './pages/Projects';
 import Project from './pages/Project';
 
 function App() {
-  const { i18n } = useTranslation();
+  // i18n 변수 제거하고 t 함수만 가져옴
+  const { t } = useTranslation();
   const { theme } = useThemeStore();
   
   // Apply theme class to document

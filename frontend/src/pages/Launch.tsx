@@ -30,7 +30,8 @@ const Launch = () => {
     setError(null);
     
     try {
-      const result = await validateApiKey(inputApiKey);
+      // result 변수 미사용으로 제거, 바로 await 호출
+      await validateApiKey(inputApiKey);
       setApiKey(inputApiKey);
       setValidated(true);
       navigate('/projects');

@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useApiKeyStore from '../store/apiKeyStore';
-import { getProject, getChatLogs, sendChatMessage, getFilesList } from '../api/endpoints';
+// 필요한 함수만 import
+import { sendChatMessage } from '../api/endpoints';
 
 // Avatar with animation states
 const Avatar = () => {
@@ -278,9 +279,9 @@ const Project = () => {
     }
   };
   
-  const handleFileClick = (path: string) => {
-    // This would open the file in the system's default editor
-    console.log('Opening file:', path);
+  const handleFileClick = (filePath: string) => {
+    // path 변수 이름 변경하여 혼란 방지
+    console.log('Opening file:', filePath);
   };
   
   return (

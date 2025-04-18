@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useApiKeyStore from '../store/apiKeyStore';
-import { getProjects, deleteProject } from '../api/endpoints';
+// 필요한 함수만 유지
+// import { getProjects, deleteProject } from '../api/endpoints';
 
 // Placeholder for avatar component
 const Avatar = () => {

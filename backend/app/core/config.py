@@ -1,12 +1,14 @@
 import os
 from pathlib import Path
-from pydantic_settings import BaseSettings
+# pydantic-settings 대신 기본 pydantic 사용
+from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
-class Settings(BaseSettings):
+# BaseSettings 대신 BaseModel 사용
+class Settings(BaseModel):
     # API Settings
     API_PREFIX: str = "/api"
     DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
