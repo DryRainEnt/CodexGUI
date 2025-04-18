@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { encryptData, decryptData } from '../utils/encryption';
 
 interface ApiKeyState {
   apiKey: string | null;
@@ -24,18 +25,19 @@ const useApiKeyStore = create<ApiKeyState>()(
     }),
     {
       name: 'codexgui-api-key',
-      // Simple encryption for API key (not secure for production)
+      // 암호화된 상태만 유지하도록 partialize
       partialize: (state) => ({ 
-        apiKey: state.apiKey ? btoa(state.apiKey) : null,
+        apiKey: state.apiKey ? encryptData(state.apiKey) : null,
         isValidated: state.isValidated,
         remainingTokens: state.remainingTokens 
       }),
-      // Decrypt the API key when loading from storage
+      // 복호화하여 API 키 복원
       onRehydrateStorage: () => (state) => {
         if (state && state.apiKey) {
           try {
-            state.setApiKey(atob(state.apiKey as string));
+            state.setApiKey(decryptData(state.apiKey as string));
           } catch (e) {
+            console.error('Failed to decrypt API key:', e);
             state.clearApiKey();
           }
         }

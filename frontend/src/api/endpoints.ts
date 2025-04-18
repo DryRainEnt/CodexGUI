@@ -6,6 +6,7 @@ export const validateApiKey = async (apiKey: string) => {
     const response = await api.post('/api/validate-key', { api_key: apiKey });
     return response.data;
   } catch (error) {
+    console.error('API key validation failed:', error);
     throw error;
   }
 };
@@ -16,6 +17,18 @@ export const getTokenUsage = async () => {
     const response = await api.get('/api/token-usage');
     return response.data;
   } catch (error) {
+    console.error('Failed to fetch token usage:', error);
+    throw error;
+  }
+};
+
+// API key validation status check
+export const checkApiKeyStatus = async () => {
+  try {
+    const response = await api.get('/api/validate-key/status');
+    return response.data;
+  } catch (error) {
+    console.error('API key status check failed:', error);
     throw error;
   }
 };
