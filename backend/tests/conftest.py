@@ -13,8 +13,11 @@ def test_client():
     """
     Create a test client for the FastAPI app
     """
-    with TestClient(app) as client:
+    client = TestClient(app)
+    try:
         yield client
+    finally:
+        client.close()
 
 @pytest.fixture
 def temp_project_dir():
