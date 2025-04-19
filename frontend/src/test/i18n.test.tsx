@@ -5,7 +5,8 @@ import i18n from '../i18n';
 import { I18nextProvider } from 'react-i18next';
 import LanguageSelector from '../components/ui/LanguageSelector';
 import { supportedLanguages } from '../i18n';
-import { formatDate, formatNumber, formatPercent } from '../utils/formatters';
+import { formatDate, formatNumber } from '../utils/formatters';
+import * as formatters from '../utils/formatters';
 
 // i18next 초기화 대기
 beforeEach(async () => {
@@ -149,11 +150,11 @@ describe('Formatting utilities', () => {
     const testValue = 0.7568;
     
     // 영어 (미국) 형식
-    const enResult = formatPercent(testValue, { minimumFractionDigits: 2 }, 'en-US');
+    const enResult = formatters.formatPercent(testValue, { minimumFractionDigits: 2 }, 'en-US');
     expect(enResult).toContain('%'); // % 기호가 포함되어 있는지 확인
     
     // 한국어 형식
-    const koResult = formatPercent(testValue, { maximumFractionDigits: 0 }, 'ko');
+    const koResult = formatters.formatPercent(testValue, { maximumFractionDigits: 0 }, 'ko');
     expect(koResult).toContain('%'); // % 기호가 포함되어 있는지 확인
   });
 });
