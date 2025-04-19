@@ -11,7 +11,7 @@ CodexGUI is a powerful web application that provides Git repository analysis and
 - **Project Management**: Organize and manage multiple projects in one place
 - **Avatar Personas**: Customize your assistant with different personas and visual representations
 - **Offline Support**: Works offline with core functionality through PWA capabilities
-- **Multi-language Support**: Available in English and Korean (with more languages coming soon)
+- **Multi-language Support**: Available in English, Korean, Chinese (Simplified), Japanese, and Spanish
 
 ## 🚀 Getting Started
 
@@ -74,14 +74,14 @@ CodexGUI is a powerful web application that provides Git repository analysis and
 
 CodexGUI is being developed in sprints, following this roadmap:
 
-- [x] **S0**: Project setup with Vite, React, TailwindCSS, and i18n
-- [ ] **S1**: Launch screen with API key validation
+- [x] **S0**: Project setup with Vite, React, TailwindCSS, and basic i18n
+- [x] **S1**: Launch screen with API key validation, improved UI and enhanced internationalization
 - [ ] **S2**: Projects list screen with cards and favorites
 - [ ] **S3**: Backend Git/FS API endpoints
 - [ ] **S4**: Project info screen with chat logs
 - [ ] **S5**: Structure Analyzer and Snapshot viewer
 - [ ] **S6**: Persona status animations
-- [ ] **S7**: International languages support
+- [x] **S7**: International languages support (Completed early in Sprint 1)
 - [ ] **S8**: LAIOS Bridge α
 - [ ] **S9**: QA and performance optimization
 - [ ] **S10**: Beta release
