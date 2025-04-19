@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useApiKeyStore from '../store/apiKeyStore';
+import { FormattedDate, FormattedDateTime, RelativeTime } from '../components/ui';
 // 필요한 함수만 유지
 // import { getProjects, deleteProject } from '../api/endpoints';
 
@@ -144,8 +145,14 @@ const ProjectCard = ({
               🗑️
             </button>
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {t('projects.lastModified')}: {lastModified}
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
+            <span>
+              {t('projects.lastModified')}:{' '}
+              <FormattedDateTime date={lastModified} dateFormat="short" />
+            </span>
+            <span className="text-gray-400 dark:text-gray-500">
+              <RelativeTime date={lastModified} />
+            </span>
           </div>
         </div>
       )}
@@ -293,7 +300,7 @@ const Projects = () => {
               key={project.id}
               id={project.id}
               name={project.name}
-              lastModified={new Date(project.updated_at).toLocaleString()}
+              lastModified={project.updated_at}
               isFavorite={project.is_favorite}
               onSelect={handleSelectProject}
               onDelete={handleDeleteProject}
