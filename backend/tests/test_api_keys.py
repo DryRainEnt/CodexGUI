@@ -47,35 +47,25 @@ def test_validate_valid_api_key(test_client):
     # API 응답 모의 처리
     with patch('httpx.AsyncClient.get') as mock_get:
         # 모델 목록 API 응답 모의
-        mock_models_response = AsyncMock(spec=Response)
+        mock_models_response = AsyncMock()
         mock_models_response.status_code = 200
         mock_models_response.json.return_value = {"data": [{"id": "gpt-4", "owned_by": "openai"}]}
         
         # 사용량 API 응답 모의
-        mock_usage_response = AsyncMock(spec=Response)
+        mock_usage_response = AsyncMock()
         mock_usage_response.status_code = 200
         mock_usage_response.json.return_value = {"total_usage": 5000}  # $50.00
         
         # 구독 API 응답 모의
-        mock_subscription_response = AsyncMock(spec=Response)
+        mock_subscription_response = AsyncMock()
         mock_subscription_response.status_code = 200
         mock_subscription_response.json.return_value = {
             "hard_limit_usd": 120,
             "soft_limit_usd": 100
         }
         
-        # 비동기 다중 호출 모의용 Future 객체 설정
-        future1 = asyncio.Future()
-        future1.set_result(mock_models_response)
-        
-        future2 = asyncio.Future()
-        future2.set_result(mock_usage_response)
-        
-        future3 = asyncio.Future()
-        future3.set_result(mock_subscription_response)
-        
         # API 호출 시퀀스 설정
-        mock_get.side_effect = [future1, future2, future3]
+        mock_get.side_effect = [mock_models_response, mock_usage_response, mock_subscription_response]
         
         # API 검증 요청
         response = test_client.post(
@@ -96,15 +86,12 @@ def test_validate_invalid_api_key(test_client):
     """유효하지 않은 API 키 검증 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
         # 비동기 함수를 모의하기 위해 AsyncMock 사용
-        mock_response = AsyncMock(spec=Response)
+        mock_response = AsyncMock()
         mock_response.status_code = 401
         mock_response.text = "Invalid API key"
         
-        # 비동기 객체를 동기적으로 처리하도록 설정
-        # future를 사용하여 비동기 함수 반환값을 동기적으로 처리
-        future = asyncio.Future()
-        future.set_result(mock_response)
-        mock_get.return_value = future
+        # AsyncMock의 반환값 직접 설정
+        mock_get.return_value = mock_response
         
         # API 검증 요청
         response = test_client.post(
@@ -141,17 +128,12 @@ def test_api_key_validation_cache(test_client):
     # 첫 번째 요청 - 실제 검증 실행
     with patch('httpx.AsyncClient.get') as mock_get:
         # 모델 목록 API 응답 모의
-        mock_response = AsyncMock(spec=Response)
+        mock_response = AsyncMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"data": []}
         
-        # 비동기 객체 모의
-        future = asyncio.Future()
-        future.set_result(mock_response)
-        mock_get.return_value = future
-        
-        # 캐싱 테스트를 위해 예외 발생 설정 (usage API 호출 시)
-        mock_get.side_effect = lambda *args, **kwargs: asyncio.Future() if 'billing' in args[0] else future
+        # Ã³Â¹Â¯ÂµÂ´ API ÂºÂ¯Â°Ã§Â°Â¡ ÂµÃ§Â¾Ã¨Â°Ã½Â´Ã¤ ÂµÃÂ´ÂºÃÂµÃÂµÂ·Ã«
+        mock_get.return_value = mock_response
         
         # API 검증 요청
         response = test_client.post(
@@ -160,7 +142,8 @@ def test_api_key_validation_cache(test_client):
         )
         
         assert response.status_code == status.HTTP_200_OK
-        assert mock_get.call_count >= 1  # API 호출 확인 - 적어도 1회 호출되어야 함
+        assert "valid" in response.json()
+        assert mock_get.call_count > 0  # API 호출 확인
     
     # 두 번째 요청 - 캐싱된 결과 사용 예상
     with patch('httpx.AsyncClient.get') as mock_get2:
