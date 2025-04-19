@@ -2,6 +2,10 @@
 
 이 가이드는 CodexGUI 웹 애플리케이션 개발을 위해 Claude와 OpenAI 어시스턴트를 효과적으로 활용하는 방법을 설명합니다. MCP(Multi-Capability Protocol) 기능과 어시스턴트 협업 전략을 통해 개발 효율성을 극대화할 수 있습니다.
 
+현재 사용중인 어시스턴트 정보:
+어시스턴트 ID: asst_h49ERsWScEONWAvW40gs11ka
+스레드 ID: thread_Eetac1Lvo9zOAT5SLupPWBbG
+
 ## 목차
 1. [MCP 유형 및 활용법](#1-mcp-유형-및-활용법)
 2. [어시스턴트 설정 및 활용 전략](#2-어시스턴트-설정-및-활용-전략)

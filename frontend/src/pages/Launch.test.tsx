@@ -90,12 +90,18 @@ describe('Launch Component', () => {
       </BrowserRouter>
     );
     
+    // Get input and enter valid key
     const input = screen.getByLabelText('Enter your OpenAI API Key');
     fireEvent.change(input, { target: { value: 'sk-validkey12345' } });
     
+    // Clear all previous mock calls
+    (validateApiKey as any).mockClear();
+    
+    // Click the validate button
     const button = screen.getByText('Validate and Start');
     fireEvent.click(button);
     
+    // Wait for the mock to be called
     await waitFor(() => {
       expect(validateApiKey).toHaveBeenCalledWith('sk-validkey12345');
     }, { timeout: 3000 });

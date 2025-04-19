@@ -63,6 +63,8 @@ wheels/
 *.egg
 venv/
 ENV/
+codexgui_env/
+requirements_dev.txt
 
 # SQLite
 *.db
