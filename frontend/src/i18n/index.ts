@@ -1,14 +1,13 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import Backend from 'i18next-http-backend';
+import ChainedBackend from 'i18next-chained-backend';
+import LocalStorageBackend from 'i18next-localstorage-backend';
 
-// Import locales
+// 기본 영어와 한국어만 즉시 로드 (Lazy Loading 적용)
 import en from './locales/en.json';
 import ko from './locales/ko.json';
-// 추가 언어 지원을 위한 import
-import zhCN from './locales/zh-CN.json';
-import ja from './locales/ja.json';
-import es from './locales/es.json';
 
 // 지원 언어 목록
 export const supportedLanguages = [
@@ -24,6 +23,8 @@ const savedLanguage = localStorage.getItem('codexgui-language');
 
 // 초기화 옵션
 i18n
+  // 백엔드 설정 - 로컬 스토리지 캐싱 및 지연 로딩 활성화
+  .use(ChainedBackend)
   // 브라우저 언어 감지 기능 추가
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -31,10 +32,28 @@ i18n
     resources: {
       en: { translation: en },
       ko: { translation: ko },
-      'zh-CN': { translation: zhCN },
-      ja: { translation: ja },
-      es: { translation: es },
     },
+    
+    // 지연 로딩을 위한 백엔드 설정
+    backend: {
+      backends: [
+        LocalStorageBackend, // 로컬 스토리지 캐싱
+        Backend // HTTP 백엔드 (나중에 CDN 사용 가능)
+      ],
+      backendOptions: [{
+        // 로컬 스토리지 옵션
+        prefix: 'codexgui_i18n_',
+        expirationTime: 7 * 24 * 60 * 60 * 1000, // 7일
+        defaultVersion: 'v1.0.0'
+      }, {
+        // HTTP 백엔드 옵션
+        loadPath: '/locales/{{lng}}/{{ns}}.json'
+      }]
+    },
+    
+    // 지연 로딩 활성화
+    partialBundledLanguages: true,
+    load: 'languageOnly', // 언어 코드만 사용 (ko-KR -> ko)
     lng: savedLanguage || undefined, // undefined로 설정하면 LanguageDetector가 자동으로 감지
     fallbackLng: 'en',
     interpolation: {

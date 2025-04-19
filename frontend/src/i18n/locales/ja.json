@@ -83,7 +83,9 @@
     "themeSystem": "システムモード",
     "plugins": "プラグイン",
     "rootFolder": "ルートフォルダを開く",
-    "language": "言語"
+    "language": "言語",
+    "languageSelector": "言語選択 - 現在: {{language}}",
+    "languageOptions": "利用可能な言語"
   },
   "avatar": {
     "nameLabel": "アバター名",

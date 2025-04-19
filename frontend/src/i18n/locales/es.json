@@ -83,7 +83,9 @@
     "themeSystem": "Modo Sistema",
     "plugins": "Plugins",
     "rootFolder": "Abrir Carpeta Raíz",
-    "language": "Idioma"
+    "language": "Idioma",
+    "languageSelector": "Seleccionar idioma - Actual: {{language}}",
+    "languageOptions": "Idiomas disponibles"
   },
   "avatar": {
     "nameLabel": "Nombre del Avatar",

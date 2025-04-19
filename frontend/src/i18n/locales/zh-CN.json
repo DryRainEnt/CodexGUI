@@ -83,7 +83,9 @@
     "themeSystem": "系统模式",
     "plugins": "插件",
     "rootFolder": "打开根文件夹",
-    "language": "语言"
+    "language": "语言",
+    "languageSelector": "选择语言 - 当前: {{language}}",
+    "languageOptions": "可用语言"
   },
   "avatar": {
     "nameLabel": "头像名称",

@@ -76,7 +76,9 @@
     "themeSystem": "System",
     "plugins": "Plugins",
     "rootFolder": "Open Root Folder",
-    "language": "Language"
+    "language": "Language",
+    "languageSelector": "Select language - Current: {{language}}",
+    "languageOptions": "Available languages"
   },
   "avatar": {
     "nameLabel": "Avatar Name",
