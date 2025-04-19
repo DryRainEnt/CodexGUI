@@ -213,6 +213,7 @@ const Launch = () => {
       <div className="absolute top-4 right-4 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
         <LanguageSelector />
         <ThemeToggle />
+      </div>
       
       <div className="w-full max-w-md p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 border border-gray-200 dark:border-gray-700 transition-all duration-300" role="main" aria-labelledby="launch-title">
         <div className="flex justify-center mb-4">
