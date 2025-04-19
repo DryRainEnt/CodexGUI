@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "CodexGUI",
-    "version": "웹 에디션 v0.1.0"
+    "version": "웹 에디션 v0.1.0",
+    "help": "도움말"
   },
   "common": {
     "loading": "로딩 중...",
@@ -14,7 +15,14 @@
     "delete": "삭제",
     "add": "추가",
     "search": "검색",
-    "back": "뒤로"
+    "back": "뒤로",
+    "light": "라이트",
+    "dark": "다크",
+    "system": "시스템",
+    "lightTheme": "라이트 테마",
+    "darkTheme": "다크 테마",
+    "systemTheme": "시스템 테마",
+    "themeToggle": "테마 전환"
   },
   "launch": {
     "title": "CodexGUI에 오신 것을 환영합니다",
@@ -25,7 +33,30 @@
     "validatingMessage": "API 키 검증 중...",
     "invalidKeyError": "유효하지 않은 API 키입니다. 확인 후 다시 시도해주세요.",
     "tokenInfoSuccess": "API 키가 성공적으로 검증되었습니다!",
-    "tokenInfoError": "토큰 정보를 가져올 수 없습니다."
+    "tokenInfoError": "토큰 정보를 가져올 수 없습니다.",
+    "emptyKeyError": "API 키를 입력해주세요.",
+    "invalidKeyFormatError": "API 키 형식이 올바르지 않습니다. 'sk-'로 시작해야 합니다.",
+    "sessionExpiredError": "세션이 만료되었습니다. API 키를 다시 입력해주세요.",
+    "rateLimitError": "요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.",
+    "serverError": "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+    "networkError": "네트워크 오류가 발생했습니다. 연결을 확인해주세요.",
+    "unknownError": "알 수 없는 오류가 발생했습니다. 다시 시도해주세요.",
+    "apiKeySecurityNote": "API 키는 암호화되어 로컬에 저장됩니다. CodexGUI 작업에만 사용됩니다.",
+    "offlineNote": "검증 후에는 대부분의 기능을 오프라인에서도 사용할 수 있습니다.",
+    "securityLevelLow": "기본",
+    "securityLevelMedium": "양호",
+    "securityLevelHigh": "강력"
+  },
+  "tokens": {
+    "usageTitle": "토큰 사용량",
+    "used": "사용함",
+    "remaining": "남음",
+    "criticalLevel": "위험",
+    "warningLevel": "경고",
+    "goodLevel": "양호",
+    "errorLoading": "토큰 사용량 로딩 오류",
+    "loadError": "토큰 사용량 정보를 불러올 수 없습니다",
+    "usagePercentLabel": "{{percent}}% 사용됨"
   },
   "projects": {
     "title": "프로젝트 목록",

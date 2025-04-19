@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "CodexGUI",
-    "version": "Web Edition v0.1.0"
+    "version": "Web Edition v0.1.0",
+    "help": "Help"
   },
   "common": {
     "loading": "Loading...",
@@ -14,7 +15,14 @@
     "delete": "Delete",
     "add": "Add",
     "search": "Search",
-    "back": "Back"
+    "back": "Back",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "lightTheme": "Light Theme",
+    "darkTheme": "Dark Theme",
+    "systemTheme": "System Theme",
+    "themeToggle": "Theme Toggle"
   },
   "launch": {
     "title": "Welcome to CodexGUI",
@@ -25,7 +33,30 @@
     "validatingMessage": "Validating API key...",
     "invalidKeyError": "Invalid API key. Please check and try again.",
     "tokenInfoSuccess": "API key validated successfully!",
-    "tokenInfoError": "Could not fetch token information."
+    "tokenInfoError": "Could not fetch token information.",
+    "emptyKeyError": "API key cannot be empty.",
+    "invalidKeyFormatError": "Invalid API key format. It should start with 'sk-'.",
+    "sessionExpiredError": "Your session has expired. Please re-enter your API key.",
+    "rateLimitError": "Rate limit exceeded. Please try again later.",
+    "serverError": "Server error. Please try again later.",
+    "networkError": "Network error. Please check your connection.",
+    "unknownError": "An unknown error occurred. Please try again.",
+    "apiKeySecurityNote": "Your API key is encrypted and stored locally. It will only be used for CodexGUI operations.",
+    "offlineNote": "Once validated, you can use most features offline.",
+    "securityLevelLow": "Basic",
+    "securityLevelMedium": "Good",
+    "securityLevelHigh": "Strong"
+  },
+  "tokens": {
+    "usageTitle": "Token Usage",
+    "used": "Used",
+    "remaining": "Remaining",
+    "criticalLevel": "Critical",
+    "warningLevel": "Warning",
+    "goodLevel": "Good",
+    "errorLoading": "Error loading token usage",
+    "loadError": "Could not load token usage information",
+    "usagePercentLabel": "{{percent}}% used"
   },
   "projects": {
     "title": "Your Projects",

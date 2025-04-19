@@ -3,7 +3,7 @@ import api from './client';
 // API Key validation
 export const validateApiKey = async (apiKey: string) => {
   try {
-    const response = await api.post('/api/validate-key', { api_key: apiKey });
+    const response = await api.post('/api/validate-key', { apiKey });
     return response.data;
   } catch (error) {
     console.error('API key validation failed:', error);
