@@ -76,7 +76,9 @@
     "themeSystem": "시스템 모드",
     "plugins": "플러그인",
     "rootFolder": "루트 폴더 열기",
-    "language": "언어"
+    "language": "언어",
+    "languageSelector": "언어 선택 - 현재: {{language}}",
+    "languageOptions": "사용 가능한 언어"
   },
   "avatar": {
     "nameLabel": "아바타 이름",
