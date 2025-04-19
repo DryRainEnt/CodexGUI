@@ -45,7 +45,10 @@
     "offlineNote": "Once validated, you can use most features offline.",
     "securityLevelLow": "Basic",
     "securityLevelMedium": "Good",
-    "securityLevelHigh": "Strong"
+    "securityLevelHigh": "Strong",
+    "securityLevelLowDesc": "This API key appears to be shorter than recommended.",
+    "securityLevelMediumDesc": "This API key has moderate security strength.",
+    "securityLevelHighDesc": "This API key has good length and complexity."
   },
   "tokens": {
     "usageTitle": "Token Usage",
@@ -56,7 +59,11 @@
     "goodLevel": "Good",
     "errorLoading": "Error loading token usage",
     "loadError": "Could not load token usage information",
-    "usagePercentLabel": "{{percent}}% used"
+    "usagePercentLabel": "{{percent}}% used",
+    "loading": "Loading token usage information",
+    "criticalLevelDescription": "Your token usage is critical. Consider upgrading your plan or monitoring your usage closely.",
+    "warningLevelDescription": "Your token usage is approaching limit. Consider optimizing your prompts.",
+    "goodLevelDescription": "Your token usage is at a healthy level."
   },
   "projects": {
     "title": "Your Projects",

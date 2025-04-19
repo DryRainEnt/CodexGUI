@@ -45,7 +45,10 @@
     "offlineNote": "검증 후에는 대부분의 기능을 오프라인에서도 사용할 수 있습니다.",
     "securityLevelLow": "기본",
     "securityLevelMedium": "양호",
-    "securityLevelHigh": "강력"
+    "securityLevelHigh": "강력",
+    "securityLevelLowDesc": "이 API 키는 권장하는 길이보다 짧습니다.",
+    "securityLevelMediumDesc": "이 API 키는 중간 수준의 보안 강도를 가지고 있습니다.",
+    "securityLevelHighDesc": "이 API 키는 적절한 길이와 복잡성을 가지고 있습니다."
   },
   "tokens": {
     "usageTitle": "토큰 사용량",
@@ -56,7 +59,11 @@
     "goodLevel": "양호",
     "errorLoading": "토큰 사용량 로딩 오류",
     "loadError": "토큰 사용량 정보를 불러올 수 없습니다",
-    "usagePercentLabel": "{{percent}}% 사용됨"
+    "usagePercentLabel": "{{percent}}% 사용됨",
+    "loading": "토큰 사용량 정보를 불러오는 중",
+    "criticalLevelDescription": "토큰 사용량이 위험 수준입니다. 요금제 플랜 업그레이드나 사용량 모니터링을 고려하세요.",
+    "warningLevelDescription": "토큰 사용량이 한도에 근접하고 있습니다. 프롬프트 최적화를 고려하세요.",
+    "goodLevelDescription": "토큰 사용량이 정상 수준입니다."
   },
   "projects": {
     "title": "프로젝트 목록",
