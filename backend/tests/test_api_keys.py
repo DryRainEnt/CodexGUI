@@ -27,10 +27,9 @@ def clear_caches():
     TOKEN_USAGE_CACHE.clear()
     yield
 
-@pytest.mark.asyncio
-async def test_validate_test_api_key(test_client):
+def test_validate_test_api_key(test_client):
     """테스트용 API 키 검증 테스트"""
-    response = await test_client.post(
+    response = test_client.post(
         "/api/validate-key",
         json={"apiKey": TEST_KEY}
     )
@@ -42,8 +41,7 @@ async def test_validate_test_api_key(test_client):
     assert json_response["rate_limits"] is not None
     assert json_response["rate_limits"]["remaining_tokens"] == 999000
 
-@pytest.mark.asyncio
-async def test_validate_valid_api_key(test_client):
+def test_validate_valid_api_key(test_client):
     """유효한 API 키 검증 테스트"""
     # API 응답 모의 처리
     with patch('httpx.AsyncClient.get') as mock_get:
@@ -73,7 +71,7 @@ async def test_validate_valid_api_key(test_client):
         ]
         
         # API 검증 요청
-        response = await test_client.post(
+        response = test_client.post(
             "/api/validate-key",
             json={"apiKey": VALID_KEY}
         )
@@ -87,8 +85,7 @@ async def test_validate_valid_api_key(test_client):
         assert "remaining_tokens" in json_response["rate_limits"]
         assert json_response["rate_limits"]["usage_percent"] > 0
 
-@pytest.mark.asyncio
-async def test_validate_invalid_api_key(test_client):
+def test_validate_invalid_api_key(test_client):
     """유효하지 않은 API 키 검증 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
         # 모델 목록 API 응답 모의 (401 인증 오류)
@@ -98,7 +95,7 @@ async def test_validate_invalid_api_key(test_client):
         mock_get.return_value = mock_response
         
         # API 검증 요청
-        response = await test_client.post(
+        response = test_client.post(
             "/api/validate-key",
             json={"apiKey": INVALID_KEY}
         )
@@ -109,10 +106,9 @@ async def test_validate_invalid_api_key(test_client):
         assert json_response["valid"] == False
         assert "Invalid API key" in json_response["message"]
 
-@pytest.mark.asyncio
-async def test_validate_malformed_api_key(test_client):
+def test_validate_malformed_api_key(test_client):
     """형식이 잘못된 API 키 검증 테스트"""
-    response = await test_client.post(
+    response = test_client.post(
         "/api/validate-key",
         json={"apiKey": MALFORMED_KEY}
     )
@@ -124,8 +120,7 @@ async def test_validate_malformed_api_key(test_client):
     validation_error = json_response["detail"][0]
     assert validation_error["msg"].startswith("Invalid API key format")
 
-@pytest.mark.asyncio
-async def test_api_key_validation_cache(test_client):
+def test_api_key_validation_cache(test_client):
     """API 키 검증 결과 캐싱 테스트"""
     # 첫 번째 요청 - 실제 검증 실행
     with patch('httpx.AsyncClient.get') as mock_get:
@@ -138,7 +133,7 @@ async def test_api_key_validation_cache(test_client):
         mock_get.side_effect = Exception("Usage API error")
         
         # API 검증 요청
-        response = await test_client.post(
+        response = test_client.post(
             "/api/validate-key",
             json={"apiKey": VALID_KEY}
         )
@@ -149,7 +144,7 @@ async def test_api_key_validation_cache(test_client):
     # 두 번째 요청 - 캐싱된 결과 사용 예상
     with patch('httpx.AsyncClient.get') as mock_get:
         # API 검증 요청
-        response = await test_client.post(
+        response = test_client.post(
             "/api/validate-key",
             json={"apiKey": VALID_KEY}
         )
@@ -157,11 +152,10 @@ async def test_api_key_validation_cache(test_client):
         assert response.status_code == status.HTTP_200_OK
         assert mock_get.call_count == 0  # API 호출 없음 (캐싱된 결과 사용)
 
-@pytest.mark.asyncio
-async def test_get_token_usage(test_client):
+def test_get_token_usage(test_client):
     """토큰 사용량 조회 테스트"""
     # 테스트용 API 키로 요청
-    response = await test_client.get(
+    response = test_client.get(
         "/api/token-usage", 
         headers={"X-API-Key": TEST_KEY}
     )
@@ -171,18 +165,16 @@ async def test_get_token_usage(test_client):
     assert "remaining_tokens" in response.json()
     assert "quota" in response.json()
 
-@pytest.mark.asyncio
-async def test_get_token_usage_no_key(test_client):
+def test_get_token_usage_no_key(test_client):
     """API 키 없이 토큰 사용량 조회 테스트"""
-    response = await test_client.get("/api/token-usage")
+    response = test_client.get("/api/token-usage")
     
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert "API key is required" in response.json()["detail"]
 
-@pytest.mark.asyncio
-async def test_check_api_key_status_test_key(test_client):
+def test_check_api_key_status_test_key(test_client):
     """테스트용 API 키 상태 확인 테스트"""
-    response = await test_client.get(
+    response = test_client.get(
         "/api/validate-key/status", 
         headers={"X-API-Key": TEST_KEY}
     )
@@ -193,18 +185,16 @@ async def test_check_api_key_status_test_key(test_client):
     assert json_response["status"] == "active"
     assert json_response["remaining_tokens"] == 999000
 
-@pytest.mark.asyncio
-async def test_check_api_key_status_no_key(test_client):
+def test_check_api_key_status_no_key(test_client):
     """API 키 없이 상태 확인 테스트"""
-    response = await test_client.get("/api/validate-key/status")
+    response = test_client.get("/api/validate-key/status")
     
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     json_response = response.json()
     assert json_response["is_valid"] == False
     assert json_response["status"] == "missing_key"
 
-@pytest.mark.asyncio
-async def test_check_api_key_status_valid_key(test_client):
+def test_check_api_key_status_valid_key(test_client):
     """유효한 API 키 상태 확인 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
         # 모델 목록 API 응답 모의
@@ -215,7 +205,7 @@ async def test_check_api_key_status_valid_key(test_client):
         # 사용량 조회 시 예외 발생 시나리오
         mock_get.side_effect = [mock_models_response, Exception("Usage API error")]
         
-        response = await test_client.get(
+        response = test_client.get(
             "/api/validate-key/status", 
             headers={"X-API-Key": VALID_KEY}
         )
@@ -226,8 +216,7 @@ async def test_check_api_key_status_valid_key(test_client):
         assert json_response["status"] == "active"
         assert "last_checked" in json_response
 
-@pytest.mark.asyncio
-async def test_check_api_key_status_invalid_key(test_client):
+def test_check_api_key_status_invalid_key(test_client):
     """유효하지 않은 API 키 상태 확인 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
         # 인증 오류 응답 모의
@@ -236,7 +225,7 @@ async def test_check_api_key_status_invalid_key(test_client):
         mock_response.text = "Invalid API key"
         mock_get.return_value = mock_response
         
-        response = await test_client.get(
+        response = test_client.get(
             "/api/validate-key/status", 
             headers={"X-API-Key": INVALID_KEY}
         )
@@ -246,8 +235,7 @@ async def test_check_api_key_status_invalid_key(test_client):
         assert json_response["is_valid"] == False
         assert json_response["status"] == "invalid"
 
-@pytest.mark.asyncio
-async def test_check_api_key_status_rate_limited(test_client):
+def test_check_api_key_status_rate_limited(test_client):
     """속도 제한된 API 키 상태 확인 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
         # 속도 제한 응답 모의
@@ -256,7 +244,7 @@ async def test_check_api_key_status_rate_limited(test_client):
         mock_response.text = "Rate limit exceeded"
         mock_get.return_value = mock_response
         
-        response = await test_client.get(
+        response = test_client.get(
             "/api/validate-key/status", 
             headers={"X-API-Key": VALID_KEY}
         )
