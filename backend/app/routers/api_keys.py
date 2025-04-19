@@ -98,10 +98,14 @@ async def _validate_api_key_with_openai(api_key: str) -> Dict[str, Any]:
             timeout = 5.0 + (retry_count * 2.0)
             
             async with httpx.AsyncClient(timeout=timeout) as client:
-                response = await client.get(
-                    f"{settings.OPENAI_API_URL}/v1/models",
-                    headers=headers
-                )
+                try:
+                    response = await client.get(
+                        f"{settings.OPENAI_API_URL}/v1/models",
+                        headers=headers
+                    )
+                except Exception as e:
+                    logger.error(f"Request failed: {str(e)}")
+                    raise
                 
                 # 응답 상태 코드에 따른 처리
                 if response.status_code == 200:
@@ -274,21 +278,25 @@ async def get_token_usage_internal(api_key: str) -> dict:
     while retry_count < MAX_RETRIES:
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
-                # 이번 달 사용량
-                current_month = await client.get(
-                    f"{settings.OPENAI_API_URL}/v1/dashboard/billing/usage",
-                    params={
-                        "start_date": start_date,
-                        "end_date": end_date_str
-                    },
-                    headers=headers
-                )
-                
-                # 할당된 한도 정보
-                subscription = await client.get(
-                    f"{settings.OPENAI_API_URL}/v1/dashboard/billing/subscription",
-                    headers=headers
-                )
+                try:
+                    # 이번 달 사용량
+                    current_month = await client.get(
+                        f"{settings.OPENAI_API_URL}/v1/dashboard/billing/usage",
+                        params={
+                            "start_date": start_date,
+                            "end_date": end_date_str
+                        },
+                        headers=headers
+                    )
+                    
+                    # 할당된 한도 정보
+                    subscription = await client.get(
+                        f"{settings.OPENAI_API_URL}/v1/dashboard/billing/subscription",
+                        headers=headers
+                    )
+                except Exception as e:
+                    logger.error(f"Billing API call failed: {str(e)}")
+                    raise
                 
                 if current_month.status_code == 200 and subscription.status_code == 200:
                     usage_data = current_month.json()
@@ -424,10 +432,18 @@ async def check_api_key_status(request: Request):
         }
         
         async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get(
-                f"{settings.OPENAI_API_URL}/v1/models",
-                headers=headers
-            )
+            try:
+                response = await client.get(
+                    f"{settings.OPENAI_API_URL}/v1/models",
+                    headers=headers
+                )
+            except Exception as e:
+                logger.error(f"API call failed: {str(e)}")
+                return {
+                    "is_valid": False,
+                    "status": "error",
+                    "last_checked": datetime.now().isoformat()
+                }
             
             if response.status_code == 200:
                 # 유효한 키인 경우 사용량 정보 가져오기 시도
