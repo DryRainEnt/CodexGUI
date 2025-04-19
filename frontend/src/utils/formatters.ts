@@ -11,7 +11,7 @@ import { DateFormatOptions, NumberFormatOptions } from '../types/i18n';
  */
 export function formatDate(
   date: Date | string | number,
-  format: 'short' | 'medium' | 'long' | 'full' = 'medium',
+  options: Intl.DateTimeFormatOptions | 'short' | 'medium' | 'long' | 'full' = 'medium',
   language?: string
 ): string {
   // 언어가 지정되지 않은 경우 현재 설정된 언어나 브라우저 언어 사용
@@ -19,13 +19,16 @@ export function formatDate(
   const dateObj = date instanceof Date ? date : new Date(date);
   
   try {
-    return new Intl.DateTimeFormat(currentLanguage, {
-      dateStyle: format
-    } as any).format(dateObj);
+    // format이 문자열이면 dateStyle로 사용하고, 아니면 options 객체 그대로 사용
+    const formatOptions = typeof options === 'string' ? 
+      { dateStyle: options } as Intl.DateTimeFormatOptions : 
+      options;
+      
+    return new Intl.DateTimeFormat(currentLanguage, formatOptions).format(dateObj);
   } catch (error) {
     console.error('Date formatting error:', error);
     // 오류 시 기본 형식으로 대체
-    return dateObj.toLocaleDateString();
+    return dateObj.toLocaleDateString(currentLanguage);
   }
 }
 
@@ -39,19 +42,22 @@ export function formatDate(
  */
 export function formatTime(
   date: Date | string | number,
-  format: 'short' | 'medium' | 'long' | 'full' = 'medium',
+  options: Intl.DateTimeFormatOptions | 'short' | 'medium' | 'long' | 'full' = 'medium',
   language?: string
 ): string {
   const currentLanguage = language || localStorage.getItem('codexgui-language') || navigator.language;
   const dateObj = date instanceof Date ? date : new Date(date);
   
   try {
-    return new Intl.DateTimeFormat(currentLanguage, {
-      timeStyle: format
-    } as any).format(dateObj);
+    // format이 문자열이면 timeStyle로 사용하고, 아니면 options 객체 그대로 사용
+    const formatOptions = typeof options === 'string' ? 
+      { timeStyle: options } as Intl.DateTimeFormatOptions : 
+      options;
+      
+    return new Intl.DateTimeFormat(currentLanguage, formatOptions).format(dateObj);
   } catch (error) {
     console.error('Time formatting error:', error);
-    return dateObj.toLocaleTimeString();
+    return dateObj.toLocaleTimeString(currentLanguage);
   }
 }
 
@@ -66,21 +72,25 @@ export function formatTime(
  */
 export function formatDateTime(
   date: Date | string | number,
-  dateFormat: 'short' | 'medium' | 'long' | 'full' = 'medium',
-  timeFormat: 'short' | 'medium' | 'long' | 'full' = 'short',
+  options: Intl.DateTimeFormatOptions | { dateFormat?: 'short' | 'medium' | 'long' | 'full', timeFormat?: 'short' | 'medium' | 'long' | 'full' } = { dateFormat: 'medium', timeFormat: 'short' },
   language?: string
 ): string {
   const currentLanguage = language || localStorage.getItem('codexgui-language') || navigator.language;
   const dateObj = date instanceof Date ? date : new Date(date);
   
   try {
-    return new Intl.DateTimeFormat(currentLanguage, {
-      dateStyle: dateFormat,
-      timeStyle: timeFormat
-    } as any).format(dateObj);
+    // options가 dateFormat, timeFormat 속성을 가지고 있는지 확인
+    const formatOptions = 'dateFormat' in options || 'timeFormat' in options ? 
+      {
+        dateStyle: (options as any).dateFormat || 'medium',
+        timeStyle: (options as any).timeFormat || 'short'
+      } as Intl.DateTimeFormatOptions : 
+      options as Intl.DateTimeFormatOptions;
+      
+    return new Intl.DateTimeFormat(currentLanguage, formatOptions).format(dateObj);
   } catch (error) {
     console.error('DateTime formatting error:', error);
-    return `${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}`;
+    return `${dateObj.toLocaleDateString(currentLanguage)} ${dateObj.toLocaleTimeString(currentLanguage)}`;
   }
 }
 
@@ -94,8 +104,8 @@ export function formatDateTime(
  */
 export function formatNumber(
   value: number,
-  language?: string,
-  options: Partial<Intl.NumberFormatOptions> = {}
+  options: Partial<Intl.NumberFormatOptions> = {},
+  language?: string
 ): string {
   const currentLanguage = language || localStorage.getItem('codexgui-language') || navigator.language;
   
@@ -103,7 +113,7 @@ export function formatNumber(
     return new Intl.NumberFormat(currentLanguage, options).format(value);
   } catch (error) {
     console.error('Number formatting error:', error);
-    return value.toLocaleString();
+    return value.toLocaleString(currentLanguage);
   }
 }
 
@@ -169,17 +179,16 @@ export function useFormatters() {
   const currentLanguage = i18n.language;
   
   return {
-    formatDate: (date: Date | string | number, format?: 'short' | 'medium' | 'long' | 'full') => 
-      formatDate(date, format, currentLanguage),
+    formatDate: (date: Date | string | number, options?: Intl.DateTimeFormatOptions | 'short' | 'medium' | 'long' | 'full') => 
+      formatDate(date, options, currentLanguage),
     
-    formatTime: (date: Date | string | number, format?: 'short' | 'medium' | 'long' | 'full') => 
-      formatTime(date, format, currentLanguage),
+    formatTime: (date: Date | string | number, options?: Intl.DateTimeFormatOptions | 'short' | 'medium' | 'long' | 'full') => 
+      formatTime(date, options, currentLanguage),
     
     formatDateTime: (
       date: Date | string | number,
-      dateFormat?: 'short' | 'medium' | 'long' | 'full',
-      timeFormat?: 'short' | 'medium' | 'long' | 'full'
-    ) => formatDateTime(date, dateFormat, timeFormat, currentLanguage),
+      options?: Intl.DateTimeFormatOptions | { dateFormat?: 'short' | 'medium' | 'long' | 'full', timeFormat?: 'short' | 'medium' | 'long' | 'full' }
+    ) => formatDateTime(date, options, currentLanguage),
     
     formatNumber: (value: number, options?: Partial<Intl.NumberFormatOptions>) => 
       formatNumber(value, currentLanguage, options),

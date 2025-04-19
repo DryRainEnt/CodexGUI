@@ -122,12 +122,14 @@ describe('Formatting utilities', () => {
   test('should format dates according to locale', () => {
     const testDate = new Date(2025, 3, 20); // 2025-04-20
     
-    // 영어 (미국) 형식 - 테스트 환경에서 다양한 형식으로 출력될 수 있음
-    const enResult = formatDate(testDate, { year: 'numeric', month: 'numeric', day: 'numeric' }, 'en-US');
+    // 영어 (미국) 형식 - 다양한 형식으로 출력될 수 있음
+    const enOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    const enResult = formatDate(testDate, enOptions, 'en-US');
     expect(enResult).toBeTruthy(); // 유효한 결과값이 있는지만 확인
     
     // 한국어 형식
-    const koResult = formatDate(testDate, { year: 'numeric', month: 'numeric', day: 'numeric' }, 'ko');
+    const koOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    const koResult = formatDate(testDate, koOptions, 'ko');
     expect(koResult).toBeTruthy(); // 유효한 결과값이 있는지만 확인
   });
 
