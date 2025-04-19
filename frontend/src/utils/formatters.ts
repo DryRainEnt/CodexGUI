@@ -134,6 +134,32 @@ export function formatCurrency(
 }
 
 /**
+ * 다국어 지원 퍼센트 포맷팅 함수
+ * 
+ * @param value 포맷팅할 값 (0.x 형식)
+ * @param options 추가 옵션
+ * @param language 언어 코드
+ * @returns 포맷팅된 퍼센트 문자열
+ */
+export function formatPercent(
+  value: number,
+  options: Partial<Intl.NumberFormatOptions> = {},
+  language?: string
+): string {
+  const currentLanguage = language || localStorage.getItem('codexgui-language') || navigator.language;
+  
+  try {
+    return new Intl.NumberFormat(currentLanguage, {
+      style: 'percent',
+      ...options
+    }).format(value);
+  } catch (error) {
+    console.error('Percent formatting error:', error);
+    return `${(value * 100).toFixed(2)}%`;
+  }
+}
+
+/**
  * 리액트 컴포넌트에서 사용하기 위한 포맷팅 Hook
  * 
  * @returns 포맷팅 함수 모음
@@ -159,6 +185,9 @@ export function useFormatters() {
       formatNumber(value, currentLanguage, options),
     
     formatCurrency: (value: number, currency?: string) => 
-      formatCurrency(value, currency, currentLanguage)
+      formatCurrency(value, currency, currentLanguage),
+    
+    formatPercent: (value: number, options?: Partial<Intl.NumberFormatOptions>) => 
+      formatPercent(value, options, currentLanguage)
   };
 }
