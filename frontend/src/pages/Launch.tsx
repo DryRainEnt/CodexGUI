@@ -31,10 +31,42 @@ const Launch = () => {
   
   // 암호화 보안 레벨 표시
   const securityLevel = useMemo(() => {
-    if (!inputApiKey) return '';
-    if (inputApiKey.length >= 45) return t('launch.securityLevelHigh');
-    if (inputApiKey.length >= 30) return t('launch.securityLevelMedium');
-    return t('launch.securityLevelLow');
+    if (!inputApiKey) return { level: '', color: '', width: '0%' };
+    
+    // API 키 길이와 복잡성을 고려한 보안 점수 계산
+    const hasSpecialChars = /[^a-zA-Z0-9]/.test(inputApiKey);
+    const hasVariedChars = /[a-z]/.test(inputApiKey) && /[A-Z]/.test(inputApiKey) && /[0-9]/.test(inputApiKey);
+    
+    let score = 0;
+    // 길이 점수 (50자 이상이면 최대 점수)
+    score += Math.min(inputApiKey.length / 2, 25);
+    // 복잡성 점수
+    if (hasSpecialChars) score += 10;
+    if (hasVariedChars) score += 15;
+    
+    // 결과 평가
+    if (score >= 40) {
+      return { 
+        level: t('launch.securityLevelHigh'), 
+        color: 'bg-green-500 dark:bg-green-600', 
+        width: '100%',
+        description: t('launch.securityLevelHighDesc')
+      };
+    } else if (score >= 25) {
+      return { 
+        level: t('launch.securityLevelMedium'), 
+        color: 'bg-yellow-500 dark:bg-yellow-600', 
+        width: '66%',
+        description: t('launch.securityLevelMediumDesc')
+      };
+    } else {
+      return { 
+        level: t('launch.securityLevelLow'), 
+        color: 'bg-red-500 dark:bg-red-600', 
+        width: '33%',
+        description: t('launch.securityLevelLowDesc')
+      };
+    }
   }, [inputApiKey, t]);
 
   // 토큰 사용량 가져오기
@@ -176,24 +208,23 @@ const Launch = () => {
   };
   
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
-      {/* 테마 토글 버튼 - 우측 상단에 고정 */}
-      <div className="absolute top-4 right-4 flex space-x-2">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+      {/* 테마 토글 버튼 및 언어 선택 - 우측 상단에 고정 */}
+      <div className="absolute top-4 right-4 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
         <LanguageSelector />
         <ThemeToggle />
-      </div>
       
-      <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg" role="main" aria-labelledby="launch-title">
+      <div className="w-full max-w-md p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 border border-gray-200 dark:border-gray-700 transition-all duration-300" role="main" aria-labelledby="launch-title">
         <div className="flex justify-center mb-4">
           <div className="p-3 bg-primary-100 dark:bg-primary-900 rounded-full">
-            <LockIcon className="w-8 h-8 text-primary-600 dark:text-primary-300" />
+            <LockIcon className="w-8 h-8 text-primary-600 dark:text-primary-300" aria-hidden="true" />
           </div>
         </div>
         
-        <h1 id="launch-title" className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-2">
+        <h1 id="launch-title" className="text-2xl sm:text-3xl font-bold text-center text-gray-800 dark:text-white mb-2">
           {t('launch.title')}
         </h1>
-        <p className="text-center text-gray-600 dark:text-gray-300 mb-8">
+        <p className="text-center text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 text-sm sm:text-base">
           {t('launch.subtitle')}
         </p>
         <div className="flex justify-center mb-6">
@@ -226,7 +257,7 @@ const Launch = () => {
               <input
                 id="apiKey"
                 type="password"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none transition-colors ${
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:outline-none transition-colors ${
                   validatingStage === 'error' 
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-200' 
                     : validatingStage === 'success'
@@ -264,31 +295,40 @@ const Launch = () => {
               </div>
             )}
             
-            {inputApiKey && !error && (
-              <div className="flex items-center mt-2 text-xs" id="security-level" role="status">
-                <div className="h-1 flex-grow rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                  <div 
-                    className={`h-full ${securityLevel === t('launch.securityLevelHigh') 
-                      ? 'bg-green-500 w-full' 
-                      : securityLevel === t('launch.securityLevelMedium') 
-                        ? 'bg-yellow-500 w-2/3' 
-                        : 'bg-red-500 w-1/3'}`} 
-                    aria-hidden="true"
-                  />
+            {inputApiKey && !error && securityLevel.level && (
+              <div 
+                className="flex flex-col mt-2 text-xs" 
+                id="security-level" 
+                role="status"
+                aria-live="polite"
+                aria-label={securityLevel.description}
+              >
+                <div className="flex items-center mb-1">
+                  <div className="h-1 flex-grow rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                    <div 
+                      className={`h-full ${securityLevel.color} transition-all duration-300 ease-out`} 
+                      style={{ width: securityLevel.width }}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <span className={`ml-2 font-medium ${securityLevel.color.includes('green') 
+                    ? 'text-green-600 dark:text-green-400' 
+                    : securityLevel.color.includes('yellow') 
+                      ? 'text-yellow-600 dark:text-yellow-400' 
+                      : 'text-red-600 dark:text-red-400'}`}
+                  >
+                    {securityLevel.level}
+                  </span>
                 </div>
-                <span className={`ml-2 ${securityLevel === t('launch.securityLevelHigh') 
-                  ? 'text-green-500' 
-                  : securityLevel === t('launch.securityLevelMedium') 
-                    ? 'text-yellow-500' 
-                    : 'text-red-500'}`}>
-                  {securityLevel}
-                </span>
+                <p className="text-gray-500 dark:text-gray-400 text-[10px] mt-0.5">
+                  {securityLevel.description}
+                </p>
               </div>
             )}
           </div>
           
           <button
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            className={`w-full py-2 sm:py-3 px-3 sm:px-4 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
               isValidating 
                 ? 'bg-primary-400 text-white cursor-not-allowed' 
                 : 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500'

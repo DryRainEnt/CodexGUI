@@ -8,7 +8,7 @@ interface LanguageSelectorProps {
 }
 
 /**
- * 언어 선택 컴포넌트 - 드롭다운 메뉴 방식
+ * 언어 선택 컴포넌트 - 드롭다운 메뉴 방식 (접근성 개선)
  */
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className = '' }) => {
   const { t, i18n } = useTranslation();
