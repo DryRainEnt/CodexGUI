@@ -5,6 +5,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi import status
 from httpx import AsyncClient, Response
 import json
+from anyio import run
 
 from app.routers.api_keys import (
     ApiKeyRequest, 
@@ -14,6 +15,16 @@ from app.routers.api_keys import (
     cache_key_validation,
     cache_token_usage
 )
+
+# 커스텀 Mock Response 클래스 생성
+class MockResponse:
+    def __init__(self, status_code, json_data=None, text=""):
+        self.status_code = status_code
+        self._json_data = json_data
+        self.text = text
+    
+    def json(self):
+        return self._json_data
 
 # 테스트용 API 키
 TEST_KEY = "sk-validkey12345"
@@ -47,22 +58,25 @@ def test_validate_valid_api_key(test_client):
     # API 응답 모의 처리
     with patch('httpx.AsyncClient.get') as mock_get:
         # 모델 목록 API 응답 모의
-        mock_models_response = AsyncMock()
-        mock_models_response.status_code = 200
-        mock_models_response.json.return_value = {"data": [{"id": "gpt-4", "owned_by": "openai"}]}
+        mock_models_response = MockResponse(
+            status_code=200, 
+            json_data={"data": [{"id": "gpt-4", "owned_by": "openai"}]}
+        )
         
         # 사용량 API 응답 모의
-        mock_usage_response = AsyncMock()
-        mock_usage_response.status_code = 200
-        mock_usage_response.json.return_value = {"total_usage": 5000}  # $50.00
+        mock_usage_response = MockResponse(
+            status_code=200, 
+            json_data={"total_usage": 5000}  # $50.00
+        )
         
         # 구독 API 응답 모의
-        mock_subscription_response = AsyncMock()
-        mock_subscription_response.status_code = 200
-        mock_subscription_response.json.return_value = {
-            "hard_limit_usd": 120,
-            "soft_limit_usd": 100
-        }
+        mock_subscription_response = MockResponse(
+            status_code=200,
+            json_data={
+                "hard_limit_usd": 120,
+                "soft_limit_usd": 100
+            }
+        )
         
         # API 호출 시퀀스 설정
         mock_get.side_effect = [mock_models_response, mock_usage_response, mock_subscription_response]
@@ -85,12 +99,13 @@ def test_validate_valid_api_key(test_client):
 def test_validate_invalid_api_key(test_client):
     """유효하지 않은 API 키 검증 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
-        # 비동기 함수를 모의하기 위해 AsyncMock 사용
-        mock_response = AsyncMock()
-        mock_response.status_code = 401
-        mock_response.text = "Invalid API key"
+        # 인증 오류 응답 모의
+        mock_response = MockResponse(
+            status_code=401, 
+            text="Invalid API key"
+        )
         
-        # AsyncMock의 반환값 직접 설정
+        # 직접 mock response 반환값 설정
         mock_get.return_value = mock_response
         
         # API 검증 요청
@@ -128,9 +143,10 @@ def test_api_key_validation_cache(test_client):
     # 첫 번째 요청 - 실제 검증 실행
     with patch('httpx.AsyncClient.get') as mock_get:
         # 모델 목록 API 응답 모의
-        mock_response = AsyncMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"data": []}
+        mock_response = MockResponse(
+            status_code=200, 
+            json_data={"data": []}
+        )
         
         # 첫번째 API 반응값 설정
         mock_get.return_value = mock_response
@@ -205,9 +221,10 @@ def test_check_api_key_status_valid_key(test_client):
     """유효한 API 키 상태 확인 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
         # 모델 목록 API 응답 모의
-        mock_models_response = AsyncMock()
-        mock_models_response.status_code = 200
-        mock_models_response.json.return_value = {"data": []}
+        mock_models_response = MockResponse(
+            status_code=200, 
+            json_data={"data": []}
+        )
         
         # 사용량 조회 시 예외 발생을 위한 mock 함수 생성
         def side_effect(*args, **kwargs):
@@ -233,11 +250,12 @@ def test_check_api_key_status_invalid_key(test_client):
     """유효하지 않은 API 키 상태 확인 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
         # 인증 오류 응답 모의
-        mock_response = AsyncMock()
-        mock_response.status_code = 401
-        mock_response.text = "Invalid API key"
+        mock_response = MockResponse(
+            status_code=401, 
+            text="Invalid API key"
+        )
         
-        # 직접 AsyncMock 반환값 설정
+        # 직접 mock response 반환값 설정
         mock_get.return_value = mock_response
         
         response = test_client.get(
@@ -254,11 +272,12 @@ def test_check_api_key_status_rate_limited(test_client):
     """속도 제한된 API 키 상태 확인 테스트"""
     with patch('httpx.AsyncClient.get') as mock_get:
         # 속도 제한 응답 모의
-        mock_response = AsyncMock()
-        mock_response.status_code = 429
-        mock_response.text = "Rate limit exceeded"
+        mock_response = MockResponse(
+            status_code=429, 
+            text="Rate limit exceeded"
+        )
         
-        # 직접 AsyncMock 반환값 설정
+        # 직접 mock response 반환값 설정
         mock_get.return_value = mock_response
         
         response = test_client.get(
