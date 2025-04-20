@@ -1,174 +1,53 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Plus, Settings, PaintBrush, Folder, Plugins } from 'lucide-react';
 import useApiKeyStore from '../store/apiKeyStore';
-import { FormattedDate, FormattedDateTime, RelativeTime } from '../components/ui';
-// 필요한 함수만 유지
-// import { getProjects, deleteProject } from '../api/endpoints';
+import useProjectStore from '../store/projectStore';
+import useAvatarStore from '../store/avatarStore';
+import useTheme from '../hooks/useTheme';
+import AvatarEditor from '../components/AvatarEditor';
+import ProjectCard from '../components/ProjectCard';
+import ProjectCreateModal from '../components/ProjectCreateModal';
+import { TokenUsage } from '../components/ui';
+import { ProjectCreate } from '../types/project';
+import { getTokenUsage } from '../api/endpoints';
 
-// Placeholder for avatar component
-const Avatar = () => {
-  const { t } = useTranslation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('Codex Assistant');
-  const [persona, setPersona] = useState('I am a helpful coding assistant.');
-  
-  return (
-    <div className="flex items-start p-2">
-      <div className="h-36 w-36 bg-gray-200 dark:bg-gray-700 rounded-md mr-4 flex items-center justify-center">
-        <span className="text-4xl">🤖</span>
-      </div>
-      <div className="flex-1">
-        <div className="flex items-center mb-2">
-          <h2 className="text-xl font-semibold flex-1">
-            {isEditing ? (
-              <input
-                type="text"
-                className="input w-full"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            ) : (
-              name
-            )}
-          </h2>
-          <div className="space-x-2">
-            {isEditing ? (
-              <>
-                <button
-                  className="btn btn-primary text-sm"
-                  onClick={() => setIsEditing(false)}
-                >
-                  {t('common.save')}
-                </button>
-                <button
-                  className="btn btn-outline text-sm"
-                  onClick={() => setIsEditing(false)}
-                >
-                  {t('common.cancel')}
-                </button>
-              </>
-            ) : (
-              <button
-                className="btn btn-outline text-sm"
-                onClick={() => setIsEditing(true)}
-              >
-                {t('common.edit')}
-              </button>
-            )}
-          </div>
-        </div>
-        {isEditing ? (
-          <textarea
-            className="input w-full h-20"
-            value={persona}
-            onChange={(e) => setPersona(e.target.value)}
-            placeholder={t('avatar.personaPlaceholder')}
-          />
-        ) : (
-          <p className="text-sm text-gray-600 dark:text-gray-300">{persona}</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Project card component
-interface ProjectCardProps {
-  id: string;
-  name: string;
-  lastModified: string;
-  isFavorite: boolean;
-  onSelect: (id: string) => void;
-  onDelete: (id: string) => void;
-  onToggleFavorite: (id: string) => void;
-}
-
-const ProjectCard = ({
-  id,
-  name,
-  lastModified,
-  isFavorite,
-  onSelect,
-  onDelete,
-  onToggleFavorite
-}: ProjectCardProps) => {
-  const { t } = useTranslation();
-  const [isDeleting, setIsDeleting] = useState(false);
-  
-  return (
-    <div className="relative">
-      {isDeleting ? (
-        <div className="p-3 bg-red-100 dark:bg-red-900 rounded-md mb-2">
-          <p className="text-sm">{t('projects.deleteConfirm')}</p>
-          <div className="flex justify-end mt-2 space-x-2">
-            <button
-              className="btn btn-outline text-xs"
-              onClick={() => setIsDeleting(false)}
-            >
-              {t('common.cancel')}
-            </button>
-            <button
-              className="btn bg-red-600 hover:bg-red-700 text-white text-xs"
-              onClick={() => {
-                setIsDeleting(false);
-                onDelete(id);
-              }}
-            >
-              {t('common.delete')}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div 
-          className="p-3 bg-white dark:bg-gray-800 rounded-md shadow mb-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-          onClick={() => onSelect(id)}
-        >
-          <div className="flex items-center">
-            <h3 className="text-md font-medium flex-1">{name}</h3>
-            <button
-              className="text-gray-500 dark:text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(id);
-              }}
-            >
-              {isFavorite ? '★' : '☆'}
-            </button>
-            <button
-              className="ml-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDeleting(true);
-              }}
-            >
-              🗑️
-            </button>
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
-            <span>
-              {t('projects.lastModified')}:{' '}
-              <FormattedDateTime date={lastModified} dateFormat="short" />
-            </span>
-            <span className="text-gray-400 dark:text-gray-500">
-              <RelativeTime date={lastModified} />
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Main Projects component
 const Projects = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { apiKey, isValidated } = useApiKeyStore();
+  const { theme, toggleTheme } = useTheme();
   
-  const [projects, setProjects] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Stores
+  const { apiKey, isValidated, remainingTokens } = useApiKeyStore();
+  const { 
+    projects, 
+    loading, 
+    error, 
+    fetchProjects, 
+    addProject, 
+    removeProject, 
+    toggleFavorite 
+  } = useProjectStore();
+  const { 
+    avatar, 
+    isEnabled, 
+    fetchAvatar, 
+    updateAvatar, 
+    toggleEnabled 
+  } = useAvatarStore();
+  
+  // Local state
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [tokenUsage, setTokenUsage] = useState<{
+    totalTokensUsed: number;
+    remainingTokens: number;
+    totalSpent: string;
+    quota: string;
+    usagePercent: number;
+  } | null>(null);
+  const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+  const [tokenLoadError, setTokenLoadError] = useState<string | null>(null);
   
   // Check if API key is validated
   useEffect(() => {
@@ -177,85 +56,65 @@ const Projects = () => {
     }
   }, [isValidated, apiKey, navigate]);
   
-  // Fetch projects
+  // Fetch projects and avatar data
   useEffect(() => {
-    const fetchProjects = async () => {
+    fetchProjects();
+    fetchAvatar();
+  }, [fetchProjects, fetchAvatar]);
+  
+  // Fetch token usage
+  useEffect(() => {
+    const fetchTokenInfo = async () => {
+      if (!isValidated || !apiKey) return;
+      
+      setIsLoadingTokens(true);
       try {
-        setLoading(true);
-        // Uncomment when API is ready
-        // const data = await getProjects();
-        // setProjects(data);
+        const usageInfo = await getTokenUsage();
         
-        // Mock data for now
-        setProjects([
-          {
-            id: '1',
-            name: 'Sample Project 1',
-            path: '/path/to/project1',
-            description: 'A sample project for testing',
-            created_at: '2023-02-20T10:00:00Z',
-            updated_at: '2023-02-21T15:30:00Z',
-            is_favorite: true
-          },
-          {
-            id: '2',
-            name: 'Sample Project 2',
-            path: '/path/to/project2',
-            description: 'Another sample project',
-            created_at: '2023-02-18T09:00:00Z',
-            updated_at: '2023-02-19T11:45:00Z',
-            is_favorite: false
-          }
-        ]);
-      } catch (err) {
-        console.error('Failed to fetch projects:', err);
-        setError(t('common.error'));
+        setTokenUsage({
+          totalTokensUsed: usageInfo.total_tokens_used || 0,
+          remainingTokens: usageInfo.remaining_tokens || remainingTokens || 0,
+          totalSpent: usageInfo.total_spent || '$0.00',
+          quota: usageInfo.quota || '$0.00',
+          usagePercent: usageInfo.usage_percent || 0
+        });
+      } catch (err: any) {
+        console.error('Failed to fetch token usage:', err);
+        setTokenLoadError(err.message || t('tokens.loadError'));
       } finally {
-        setLoading(false);
+        setIsLoadingTokens(false);
       }
     };
     
-    fetchProjects();
-  }, [t]);
+    fetchTokenInfo();
+  }, [isValidated, apiKey, remainingTokens, t]);
   
+  // Handle project selection
   const handleSelectProject = (id: string) => {
     navigate(`/project/${id}`);
   };
   
+  // Handle project deletion
   const handleDeleteProject = async (id: string) => {
     try {
-      // Uncomment when API is ready
-      // await deleteProject(id);
-      // Optimistic update
-      setProjects(projects.filter(project => project.id !== id));
+      await removeProject(id);
     } catch (err) {
       console.error('Failed to delete project:', err);
-      setError(t('common.error'));
     }
   };
   
-  const handleToggleFavorite = async (id: string) => {
+  // Handle creating a new project
+  const handleCreateProject = async (projectData: ProjectCreate) => {
     try {
-      // Optimistic update
-      setProjects(
-        projects.map(project =>
-          project.id === id
-            ? { ...project, is_favorite: !project.is_favorite }
-            : project
-        )
-      );
+      const newProject = await addProject(projectData);
+      setIsCreatingProject(false);
       
-      // Backend update would go here
-      // await updateProject(id, { is_favorite: !projectToUpdate.is_favorite });
+      // Automatically navigate to the new project
+      navigate(`/project/${newProject.id}`);
     } catch (err) {
-      console.error('Failed to update project:', err);
-      setError(t('common.error'));
+      console.error('Failed to create project:', err);
+      throw err; // Re-throw for the modal to handle
     }
-  };
-  
-  const handleAddProject = () => {
-    // This would open a modal or navigate to a create project page
-    console.log('Add new project');
   };
   
   // Sort projects: favorites first, then by last modified date
@@ -269,21 +128,50 @@ const Projects = () => {
     <div className="flex flex-col min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
       {/* Header with token info */}
       <div className="h-8 flex justify-end items-center mb-2">
-        <span className="text-sm text-gray-600 dark:text-gray-400">
-          Tokens: 1,000,000
-        </span>
+        {tokenUsage && (
+          <TokenUsage
+            totalTokensUsed={tokenUsage.totalTokensUsed}
+            remainingTokens={tokenUsage.remainingTokens}
+            totalSpent={tokenUsage.totalSpent}
+            quota={tokenUsage.quota}
+            usagePercent={tokenUsage.usagePercent}
+            isLoading={isLoadingTokens}
+            error={tokenLoadError}
+            compact
+          />
+        )}
       </div>
       
       {/* Avatar section */}
-      <Avatar />
+      {isEnabled && avatar ? (
+        <AvatarEditor
+          avatar={avatar}
+          onSave={updateAvatar}
+          readOnly={false}
+          showStatus={false}
+        />
+      ) : (
+        <div className="flex items-center justify-between py-2 px-4 bg-white dark:bg-gray-800 rounded-md shadow-sm mb-4">
+          <span className="text-sm text-gray-600 dark:text-gray-300">
+            {t('avatar.disabled')}
+          </span>
+          <button 
+            onClick={() => toggleEnabled()}
+            className="btn btn-sm btn-primary"
+          >
+            {t('avatar.enable')}
+          </button>
+        </div>
+      )}
       
       {/* Projects list */}
       <div className="flex-1 overflow-y-auto mt-4 mb-4">
         <button
-          className="w-full p-2 mb-2 text-left text-primary-600 dark:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-          onClick={handleAddProject}
+          className="w-full p-2 mb-2 text-left text-primary-600 dark:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded flex items-center"
+          onClick={() => setIsCreatingProject(true)}
         >
-          + {t('projects.addNew')}
+          <Plus size={18} className="mr-2" />
+          {t('projects.addNew')}
         </button>
         
         {loading ? (
@@ -298,13 +186,10 @@ const Projects = () => {
           sortedProjects.map(project => (
             <ProjectCard
               key={project.id}
-              id={project.id}
-              name={project.name}
-              lastModified={project.updated_at}
-              isFavorite={project.is_favorite}
+              project={project}
               onSelect={handleSelectProject}
               onDelete={handleDeleteProject}
-              onToggleFavorite={handleToggleFavorite}
+              onToggleFavorite={toggleFavorite}
             />
           ))
         )}
@@ -312,17 +197,34 @@ const Projects = () => {
       
       {/* Footer with system buttons */}
       <div className="h-16 mt-2">
-        <div className="flex space-x-2 mb-2">
-          <button className="btn btn-outline flex-1 text-sm">
-            API {t('settings.apiSettings')}
+        <div className="grid grid-cols-4 gap-2 mb-2">
+          <button 
+            className="btn btn-outline text-sm flex items-center justify-center"
+            aria-label={t('settings.apiSettings')}
+          >
+            <Settings size={16} className="mr-1" />
+            {t('settings.apiSettings')}
           </button>
-          <button className="btn btn-outline flex-1 text-sm">
-            UI {t('settings.uiSettings')}
+          <button 
+            className="btn btn-outline text-sm flex items-center justify-center"
+            onClick={toggleTheme}
+            aria-label={t('settings.uiSettings')}
+          >
+            <PaintBrush size={16} className="mr-1" />
+            {t('settings.uiSettings')}
           </button>
-          <button className="btn btn-outline flex-1 text-sm">
+          <button 
+            className="btn btn-outline text-sm flex items-center justify-center"
+            aria-label={t('settings.plugins')}
+          >
+            <Plugins size={16} className="mr-1" />
             {t('settings.plugins')}
           </button>
-          <button className="btn btn-outline flex-1 text-sm">
+          <button 
+            className="btn btn-outline text-sm flex items-center justify-center"
+            aria-label={t('settings.rootFolder')}
+          >
+            <Folder size={16} className="mr-1" />
             {t('settings.rootFolder')}
           </button>
         </div>
@@ -330,6 +232,13 @@ const Projects = () => {
           CodexGUI Web Edition v0.1.0
         </div>
       </div>
+      
+      {/* Project creation modal */}
+      <ProjectCreateModal
+        isOpen={isCreatingProject}
+        onClose={() => setIsCreatingProject(false)}
+        onSubmit={handleCreateProject}
+      />
     </div>
   );
 };

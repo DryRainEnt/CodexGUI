@@ -1,4 +1,6 @@
 import api from './client';
+import { Project, ProjectCreate, ProjectUpdate } from '../types/project';
+import { Avatar, AvatarCreate, AvatarUpdate } from '../types/avatar';
 
 interface TokenUsage {
   total_tokens_used: number;
@@ -183,7 +185,7 @@ export const checkApiKeyStatus = async (maxRetries = 1): Promise<ApiKeyStatus> =
 };
 
 // Projects related endpoints
-export const getProjects = async () => {
+export const getProjects = async (): Promise<Project[]> => {
   try {
     const response = await api.get('/api/projects');
     return response.data;
@@ -192,7 +194,7 @@ export const getProjects = async () => {
   }
 };
 
-export const createProject = async (projectData: any) => {
+export const createProject = async (projectData: ProjectCreate): Promise<Project> => {
   try {
     const response = await api.post('/api/projects', projectData);
     return response.data;
@@ -201,7 +203,7 @@ export const createProject = async (projectData: any) => {
   }
 };
 
-export const getProject = async (projectId: string) => {
+export const getProject = async (projectId: string): Promise<Project> => {
   try {
     const response = await api.get(`/api/projects/${projectId}`);
     return response.data;
@@ -210,7 +212,7 @@ export const getProject = async (projectId: string) => {
   }
 };
 
-export const updateProject = async (projectId: string, projectData: any) => {
+export const updateProject = async (projectId: string, projectData: ProjectUpdate): Promise<Project> => {
   try {
     const response = await api.put(`/api/projects/${projectId}`, projectData);
     return response.data;
@@ -219,9 +221,36 @@ export const updateProject = async (projectId: string, projectData: any) => {
   }
 };
 
-export const deleteProject = async (projectId: string) => {
+export const deleteProject = async (projectId: string): Promise<void> => {
   try {
-    const response = await api.delete(`/api/projects/${projectId}`);
+    await api.delete(`/api/projects/${projectId}`);
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Avatar related endpoints
+export const getAvatar = async (): Promise<Avatar> => {
+  try {
+    const response = await api.get('/api/avatar');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createAvatar = async (avatarData: AvatarCreate): Promise<Avatar> => {
+  try {
+    const response = await api.post('/api/avatar', avatarData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateAvatar = async (avatarId: string, avatarData: AvatarUpdate): Promise<Avatar> => {
+  try {
+    const response = await api.put(`/api/avatar/${avatarId}`, avatarData);
     return response.data;
   } catch (error) {
     throw error;
@@ -289,6 +318,61 @@ export const sendChatMessage = async (projectId: string, message: string) => {
   try {
     const response = await api.post(`/api/chat/${projectId}/send`, { message });
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Codex CLI integration
+export interface CodexExecuteRequest {
+  prompt: string;
+  approval_mode: 'suggest' | 'auto-edit' | 'full-auto';
+  project_path: string;
+}
+
+export interface CodexResult {
+  stdout: string;
+  stderr: string;
+  exit_code: number;
+  changes: CodexFileChange[];
+}
+
+export interface CodexFileChange {
+  id: string;
+  filename: string;
+  status: string;
+  diff?: string;
+}
+
+export const executeCodex = async (projectId: string, request: CodexExecuteRequest): Promise<CodexResult> => {
+  try {
+    const response = await api.post(`/api/codex/${projectId}/execute`, request);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const approveCodexChanges = async (projectId: string, changeIds: string[]): Promise<void> => {
+  try {
+    await api.post(`/api/codex/${projectId}/approve-changes`, { change_ids: changeIds });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getSafeCommands = async (projectId: string): Promise<string[]> => {
+  try {
+    const response = await api.get(`/api/codex/${projectId}/safe-commands`);
+    return response.data.commands;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateSafeCommands = async (projectId: string, commands: string[]): Promise<void> => {
+  try {
+    await api.post(`/api/codex/${projectId}/safe-commands`, { commands });
   } catch (error) {
     throw error;
   }

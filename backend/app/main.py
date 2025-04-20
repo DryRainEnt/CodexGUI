@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 from pathlib import Path
 
-from app.routers import api_keys, projects, git, filesystem, chat
+from app.routers import api_keys, projects, git, filesystem, chat, codex, avatar
 from app.core.config import settings
 
 # Create FastAPI app
@@ -29,6 +29,8 @@ app.include_router(projects.router)
 app.include_router(git.router)
 app.include_router(filesystem.router)
 app.include_router(chat.router)
+app.include_router(codex.router)  # Codex CLI integration
+app.include_router(avatar.router)  # Avatar management
 
 # Mount static files (frontend build) if directory exists
 frontend_path = Path(settings.STATIC_FILES_DIR)

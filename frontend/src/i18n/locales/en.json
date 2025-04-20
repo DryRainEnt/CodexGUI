@@ -22,7 +22,10 @@
     "lightTheme": "Light Theme",
     "darkTheme": "Dark Theme",
     "systemTheme": "System Theme",
-    "themeToggle": "Theme Toggle"
+    "themeToggle": "Theme Toggle",
+    "creating": "Creating...",
+    "create": "Create",
+    "wait": "Wait..."
   },
   "launch": {
     "title": "Welcome to CodexGUI",
@@ -68,11 +71,30 @@
   "projects": {
     "title": "Your Projects",
     "addNew": "Add New Project",
+    "createNew": "Create New Project",
     "recentlyModified": "Recently Modified",
     "favorited": "Favorited",
     "noProjects": "No projects found. Create a new one to get started.",
     "deleteConfirm": "Are you sure you want to delete this project? Only work logs will be deleted, the project folder will remain intact.",
-    "lastModified": "Last modified"
+    "lastModified": "Last modified",
+    "name": "Project Name",
+    "namePlaceholder": "My Awesome Project",
+    "path": "Project Path",
+    "pathPlaceholder": "Select a directory...",
+    "pathDescription": "Path to your project's root directory",
+    "description": "Description",
+    "descriptionPlaceholder": "Brief description of this project (optional)",
+    "browse": "Browse",
+    "codexSettings": "Codex CLI Settings",
+    "addFavorite": "Add to Favorites",
+    "removeFavorite": "Remove from Favorites",
+    "errors": {
+      "nameRequired": "Project name is required",
+      "pathRequired": "Project path is required",
+      "directorySelection": "Failed to select directory",
+      "createFailed": "Failed to create project",
+      "deleteFailed": "Failed to delete project"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -89,19 +111,52 @@
   },
   "avatar": {
     "nameLabel": "Avatar Name",
-    "personaLabel": "Persona",
+    "name": "Name",
+    "persona": "Persona",
+    "image": "Avatar Image",
+    "changeImage": "Change Avatar Image",
+    "namePlaceholder": "Enter avatar name...",
     "personaPlaceholder": "Enter persona description...",
-    "statusWaiting": "Waiting",
-    "statusAnswering": "Answering",
-    "statusWorking": "Working",
-    "statusError": "Error",
-    "statusHappy": "Happy",
-    "useAvatar": "Use Avatar"
+    "defaultName": "Codex Assistant",
+    "defaultPersona": "I am a helpful AI coding assistant that can help you with your development tasks.",
+    "disabled": "Avatar is currently disabled",
+    "enable": "Enable Avatar",
+    "status": {
+      "idle": "Ready",
+      "answering": "Answering",
+      "working": "Working",
+      "error": "Error",
+      "happy": "Happy"
+    }
   },
   "chat": {
     "inputPlaceholder": "Type a message...",
     "send": "Send",
     "addReference": "Add Reference",
     "contextFiles": "Context Files"
+  },
+  "codex": {
+    "title": "Codex CLI",
+    "execute": "Execute",
+    "running": "Running...",
+    "promptPlaceholder": "Tell Codex what to do (e.g., 'Create a function to calculate fibonacci numbers')",
+    "result": "Result",
+    "changes": "Changes",
+    "approve": "Approve",
+    "approveAll": "Approve All",
+    "deny": "Deny",
+    "output": "Output",
+    "approvalModes": {
+      "suggest": "Suggest Only",
+      "autoEdit": "Auto Edit Files",
+      "fullAuto": "Full Auto"
+    },
+    "approvalDescription": "Choose how much autonomy to give Codex: 'Suggest Only' requires approval for all changes, 'Auto Edit' applies file edits automatically, 'Full Auto' executes commands without asking.",
+    "noChanges": "No changes detected",
+    "safeCommands": "Safe Commands",
+    "addSafeCommand": "Add Command",
+    "commandPlaceholder": "Enter command (e.g., 'npm test')",
+    "notInstalled": "Codex CLI not installed",
+    "installInstructions": "To use Codex features, install Codex CLI with: npm install -g @openai/codex"
   }
 }
