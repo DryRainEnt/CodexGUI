@@ -1,0 +1,14 @@
+{
+  "name": "codexgui",
+  "version": "1.0.0",
+  "description": "CodexGUI - Visual Development Workflow Automation Tool",
+  "scripts": {
+    "codex:run": "ts-node tools/codex-runner.ts",
+    "codex:context": "ts-node tools/codex-context-generator.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.32",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
