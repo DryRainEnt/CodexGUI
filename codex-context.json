@@ -1,5 +1,22 @@
 {
   "description": "This file stores current project context for Codex CLI interaction.",
-  "components": [],
-  "routes": []
+  "frontend": {
+    "components": [
+      "App.tsx",
+      "main.tsx"
+    ],
+    "entrypoint": "App.tsx"
+  },
+  "backend": {
+    "entrypoint": "main.py"
+  },
+  "structure": [
+    "frontend/src/",
+    "├── App.tsx // Defines function App() ",
+    "├── assets",
+    "├── main.tsx // Core functionality file",
+    "└── vite-env.d.ts // / <reference types=\"vite/client\" />",
+    "backend/app/",
+    "└── main.py // Defines def root():"
+  ]
 }

@@ -1,0 +1,19 @@
+{
+  "steps": [
+    {
+      "description": "Hello World 컴포넌트 생성",
+      "prompt": "React로 Hello World를 표시하는 간단한 컴포넌트를 만들어주세요. TypeScript를 사용하고 props로 이름을 받아서 표시하세요.",
+      "target": "frontend/src/components/HelloWorld.tsx"
+    },
+    {
+      "description": "App 컴포넌트 생성",
+      "prompt": "React App 컴포넌트를 생성하고 HelloWorld 컴포넌트를 import해서 사용하세요. TypeScript를 사용하고 React.FC 타입을 사용하세요.",
+      "target": "frontend/src/App.tsx"
+    },
+    {
+      "description": "main 진입점 생성",
+      "prompt": "React 애플리케이션의 진입점인 main.tsx 파일을 생성하세요. React 18의 createRoot를 사용하세요.",
+      "target": "frontend/src/main.tsx"
+    }
+  ]
+}
